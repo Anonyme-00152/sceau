@@ -5,6 +5,7 @@ import { findPendingByToken, hasActiveDirection } from "@/lib/accounts";
 import { decideByTokenAction } from "@/lib/account-actions";
 import { ROLE_LABEL } from "@/lib/fields";
 import { AuthFrame } from "@/components/auth/AuthFrame";
+import { DecisionButtons } from "@/components/auth/DecisionButtons";
 
 export const metadata: Metadata = { title: "Valider une demande d'accès" };
 
@@ -53,7 +54,13 @@ export default async function ApprobationPage(props: PageProps<"/approbation/[je
       <div>
         <p className="label text-danger">Lien inutilisable</p>
         <h1 className="mt-4 text-4xl tracking-[-0.045em]">Ce lien a expiré ou a déjà servi.</h1>
-        <p className="mt-4 leading-relaxed text-bone/70">Les liens de validation sont valables 7 jours et ne servent qu&apos;une fois.</p>
+        <p className="mt-4 leading-relaxed text-bone/70">
+          Les liens de validation sont valables 7 jours et ne servent qu&apos;une fois. Si vous venez de valider cette demande, la
+          décision est bien enregistrée : la personne peut se connecter.
+        </p>
+        <Link href="/connexion" className="mt-10 inline-flex h-13 items-center rounded-full bg-bone px-6 font-medium text-ink">
+          Aller à la connexion
+        </Link>
       </div>,
     );
   }
@@ -124,14 +131,7 @@ export default async function ApprobationPage(props: PageProps<"/approbation/[je
             </div>
           </fieldset>
         )}
-        <div className="flex flex-wrap gap-3">
-          <button name="decision" value="approuver" className="inline-flex h-13 flex-1 items-center justify-center rounded-full bg-brass px-6 font-medium text-ink transition-transform hover:scale-[1.02]">
-            Valider l&apos;accès
-          </button>
-          <button name="decision" value="refuser" className="inline-flex h-13 items-center justify-center rounded-full border border-bone/20 px-6 text-bone/85 transition-colors hover:border-danger hover:text-danger">
-            Refuser
-          </button>
-        </div>
+        <DecisionButtons />
       </form>
     </div>,
   );

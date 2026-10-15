@@ -14,7 +14,7 @@ import { failuresFromIp } from "./activity";
 import { enrollmentData } from "./accounts";
 import type { User } from "./db/schema";
 
-export type EnrollData = { qr: string; secret: string };
+export type EnrollData = { qr: string; secret: string; issuer: string };
 export type AuthState = {
   error?: string;
   step?: "password" | "code" | "enroll";

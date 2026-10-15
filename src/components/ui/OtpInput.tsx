@@ -47,7 +47,6 @@ export function OtpInput({
             aria-label={`Chiffre ${i + 1}`}
             aria-invalid={invalid || undefined}
             disabled={disabled}
-            maxLength={1}
             value={value[i] ?? ""}
             onFocus={(e) => e.currentTarget.select()}
             onPaste={(e) => {
@@ -64,7 +63,15 @@ export function OtpInput({
               else if (e.key === "ArrowRight" && i < 5) refs.current[i + 1]?.focus();
             }}
             onChange={(e) => {
-              const digit = e.target.value.replace(/\D/g, "").slice(-1);
+              const typed = e.target.value.replace(/\D/g, "");
+              // Code proposé par le téléphone ou le gestionnaire de mots de passe : il arrive entier dans une case.
+              if (typed.length > 2) {
+                const next = set(value.slice(0, i) + typed);
+                refs.current[Math.min(5, next.length)]?.focus();
+                return;
+              }
+              // Deux chiffres : l'ancien et le nouveau, on garde le nouveau.
+              const digit = typed.length === 2 && typed[0] === value[i] ? typed[1] : typed.slice(-1);
               const chars = value.padEnd(6, " ").split("");
               chars[i] = digit || " ";
               const next = set(chars.join("").replace(/\s+$/g, "").replace(/\s/g, ""));

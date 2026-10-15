@@ -72,7 +72,10 @@ export function LoginPanel({
           </li>
           <li className="flex gap-4">
             <span className="label mt-1 text-brass">03</span>
-            <p className="text-sm leading-relaxed text-bone/80">Saisissez le code affiché pour confirmer.</p>
+            <p className="text-sm leading-relaxed text-bone/80">
+              Saisissez le code de l&apos;entrée <strong className="font-medium text-bone">{enroll.issuer}</strong> pour confirmer.
+              Si l&apos;application affiche plusieurs entrées « Sceau », c&apos;est celle-ci.
+            </p>
           </li>
         </ol>
 

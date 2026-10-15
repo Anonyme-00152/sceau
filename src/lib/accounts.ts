@@ -181,7 +181,9 @@ export async function decideAccount(user: User, decision: "approuver" | "refuser
 /** QR code et clé manuelle pour associer l'application d'authentification (première connexion). */
 export async function enrollmentData(user: User) {
   const secret = unseal(user.totpSecret, `totp:${user.id}`);
-  const uri = `otpauth://totp/${encodeURIComponent(`Sceau:${user.email}`)}?secret=${secret}&issuer=Sceau&algorithm=SHA1&digits=6&period=30`;
+  // Le nom de l'installation distingue, dans l'application, une version locale et une version en ligne.
+  const issuer = `Sceau (${new URL(APP_URL).hostname})`;
+  const uri = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(user.email)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=30`;
   const qr = await QRCode.toDataURL(uri, { margin: 1, width: 240, color: { dark: "#0d0c0a", light: "#efe9dd" } });
-  return { qr, secret: secret.replace(/(.{4})/g, "$1 ").trim() };
+  return { qr, secret: secret.replace(/(.{4})/g, "$1 ").trim(), issuer };
 }
