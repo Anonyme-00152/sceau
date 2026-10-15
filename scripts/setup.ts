@@ -66,6 +66,13 @@ async function main() {
     console.error("  ✗ SCEAU_MASTER_KEY absente : lancez `npm run cloud:secrets -- <projet>` puis redéployez.");
     process.exit(1);
   }
+  // Site réel en ligne : le premier compte se valide par e-mail. Sans SMTP, la demande partirait dans le vide
+  // et l'adresse resterait bloquée en attente.
+  if (BUILD && process.env.SCEAU_HEBERGEMENT === "en-ligne" && process.env.DEMO_MODE !== "true" && !process.env.SMTP_PASS) {
+    console.error("  ✗ SMTP_PASS absent : sans envoi d'e-mail, le premier compte ne pourrait pas être validé.");
+    console.error("    Lancez `npm run cloud:secrets -- sceau-prive` (mot de passe pour app iCloud) puis redéployez.");
+    process.exit(1);
+  }
 
   // Imports après chargement de l'environnement : ces modules lisent la clé et l'URL à l'import.
   const { databaseConfig, isLocalDatabase } = await import("../src/lib/db/config");
