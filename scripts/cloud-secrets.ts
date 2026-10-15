@@ -10,14 +10,23 @@
  */
 import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
+import path from "node:path";
 import readline from "node:readline";
 
 const PROJECTS = ["sceau-prive", "sceau-demo"] as const;
 const project = process.argv[2] as (typeof PROJECTS)[number];
 const REPLACE_KEY = process.argv.includes("--remplacer-cle");
 
+// Sous Windows, le dossier des outils npm globaux (dont vercel) manque parfois au PATH du terminal.
+const env = { ...process.env };
+if (process.platform === "win32" && process.env.APPDATA) {
+  const key = Object.keys(env).find((k) => k.toLowerCase() === "path") ?? "Path";
+  env[key] = `${path.join(process.env.APPDATA, "npm")};${env[key] ?? ""}`;
+}
+
 function vercel(args: string[], input?: string) {
-  const res = spawnSync("vercel", args, { input, encoding: "utf8", shell: true });
+  // Arguments fixes et sans espaces : une seule ligne de commande pour le shell.
+  const res = spawnSync(["vercel", ...args].join(" "), { input, encoding: "utf8", shell: true, env });
   return { ok: res.status === 0, out: `${res.stdout ?? ""}${res.stderr ?? ""}` };
 }
 
