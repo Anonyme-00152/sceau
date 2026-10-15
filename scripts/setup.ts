@@ -61,6 +61,11 @@ async function main() {
   console.log(`Sceau — préparation de la base${BUILD ? " (compilation en ligne)" : ""}`);
   // En ligne, les variables viennent de l'hébergeur : aucun fichier .env.local n'est créé.
   if (!BUILD) ensureEnv();
+  // Sans clé, le site se publierait mais ne pourrait rien chiffrer : mieux vaut refuser la compilation.
+  if (BUILD && !process.env.SCEAU_MASTER_KEY) {
+    console.error("  ✗ SCEAU_MASTER_KEY absente : lancez `npm run cloud:secrets -- <projet>` puis redéployez.");
+    process.exit(1);
+  }
 
   // Imports après chargement de l'environnement : ces modules lisent la clé et l'URL à l'import.
   const { databaseConfig, isLocalDatabase } = await import("../src/lib/db/config");
