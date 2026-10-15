@@ -1,0 +1,62 @@
+﻿SCEAU — Registre client confidentiel
+====================================
+
+INSTALLER ET OUVRIR
+-------------------
+1. Décompressez le dossier « Sceau » où vous voulez (par exemple dans Documents).
+2. Double-cliquez sur « Lancer Sceau.bat ».
+   - Si Node.js n'est pas installé, il s'installe automatiquement (Windows 10/11).
+     Si on vous demande ensuite de relancer le fichier, faites-le.
+   - La première fois : les composants s'installent (quelques minutes), puis on vous
+     demande l'adresse e-mail de l'administrateur et le mode :
+       [1] Usage réel    : base vide, pour vos vrais clients
+       [2] Démonstration : données fictives pour découvrir Sceau
+3. Le navigateur s'ouvre tout seul sur Sceau.
+   Gardez la fenêtre noire ouverte : la fermer arrête Sceau.
+   Les fois suivantes, un double-clic suffit, sans rien réinstaller.
+
+Windows peut afficher « Windows a protégé votre ordinateur » : cliquez sur
+« Informations complémentaires » puis « Exécuter quand même ».
+
+PREMIER COMPTE
+--------------
+- Usage réel : ouvrez « Demander un accès », créez votre compte. Un e-mail de
+  validation part à l'adresse de l'administrateur. Ouvrez le lien qu'il contient
+  SUR CE PC : ce premier compte devient « Direction ».
+- À la première connexion, scannez le QR code avec une application
+  d'authentification (Google Authenticator, Microsoft Authenticator, 1Password…).
+- Mode démonstration : comptes direction@ / gestion@ / lecture@sceau-demo.test,
+  mot de passe Sceau-Demo-2026! (le code à 6 chiffres s'affiche à l'écran).
+
+LES E-MAILS
+-----------
+Sans réglage, les e-mails ne partent pas : ils sont déposés dans le dossier
+data\outbox (double-clic sur un fichier .eml pour le lire).
+Pour les recevoir vraiment (exemple iCloud) :
+  1. Créez un « mot de passe pour app » sur https://appleid.apple.com
+  2. Ouvrez le fichier .env.local avec le Bloc-notes, retirez les « # » devant
+     les lignes SMTP et remplissez votre adresse et ce mot de passe.
+  3. Double-cliquez sur « Tester l'envoi d'e-mail.bat » : un e-mail de test part
+     vers l'administrateur, ou le message d'erreur s'affiche.
+  4. Fermez Sceau et relancez « Lancer Sceau.bat ».
+
+SAUVEGARDE — TRÈS IMPORTANT
+---------------------------
+Toutes les données sont chiffrées avec la clé contenue dans le fichier .env.local.
+Sauvegardez ENSEMBLE, dans un endroit sûr (clé USB chiffrée, coffre-fort) :
+  - le dossier  data\
+  - le fichier  .env.local
+Sans .env.local, les données sont illisibles, même pour vous.
+Ne transmettez jamais .env.local à quelqu'un d'autre.
+
+METTRE À JOUR
+-------------
+Remplacez les fichiers du programme SANS toucher à data\ ni à .env.local,
+supprimez le dossier .next puis relancez « Lancer Sceau.bat ».
+
+RAPPEL RGPD
+-----------
+Sceau protège techniquement les données, mais c'est l'organisation qui les
+collecte qui en est responsable : n'enregistrez que ce qui est nécessaire,
+informez vos clients, fixez des durées de conservation (rubrique « Conformité
+RGPD » de chaque fiche).
