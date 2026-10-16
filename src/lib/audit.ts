@@ -47,6 +47,15 @@ export const AUDIT_LABEL = {
   "code.enrole": "Authentificateur associé",
   "parametres.modifies": "Paramètres modifiés",
   "sauvegarde.telechargee": "Sauvegarde téléchargée",
+  "compte.cree": "Compte créé",
+  "compte.modifie": "Compte modifié",
+  "compte.suspendu": "Compte suspendu",
+  "compte.reactive": "Compte réactivé",
+  "compte.debloque": "Compte débloqué",
+  "compte.supprime": "Compte supprimé",
+  "mot-de-passe.reinitialise": "Mot de passe réinitialisé",
+  "mot-de-passe.modifie": "Mot de passe modifié",
+  "code.reinitialise": "Téléphone à réassocier",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_LABEL;

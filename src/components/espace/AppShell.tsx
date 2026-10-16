@@ -22,6 +22,7 @@ const NAV: { href: string; label: string; icon: IconName; exact?: boolean; direc
   { href: "/espace/clients", label: "Dossiers", icon: "folder" },
   { href: "/espace/journal", label: "Journal scellé", icon: "journal" },
   { href: "/espace/equipe", label: "Équipe & sessions", icon: "team" },
+  { href: "/espace/compte", label: "Mon compte", icon: "user" },
   { href: "/espace/parametres", label: "Paramètres", icon: "settings", directionOnly: true },
 ];
 

@@ -86,7 +86,7 @@ export default async function ApprobationPage(props: PageProps<"/approbation/[je
     );
   }
 
-  const requested = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeStyle: "short" }).format(pending.createdAt);
+  const requested = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", dateStyle: "long", timeStyle: "short" }).format(pending.createdAt);
   const action = decideByTokenAction.bind(null, jeton);
 
   return frame(

@@ -32,7 +32,7 @@ export default async function DashboardPage() {
   const mine = clients.filter((c) => c.access);
   const secret = mine.filter((c) => c.sensitivity === "secret").length;
   const firstName = user.name.split(" ")[0];
-  const date = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
+  const date = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long" }).format(new Date());
 
   const stats = [
     { label: "Dossiers accessibles", value: mine.length, hint: user.role === "direction" ? `sur ${clients.length} au registre` : "sur votre liste d'accès" },

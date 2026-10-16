@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { count } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { activeSessions, requireAccess } from "@/lib/session";
@@ -11,6 +12,7 @@ import { PageHeader, Panel } from "@/components/espace/PageHeader";
 import { Avatar } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { PendingRequest, type PendingView } from "@/components/espace/PendingRequest";
+import { CreateMemberForm } from "@/components/espace/members/CreateMemberForm";
 
 export const metadata: Metadata = { title: "Équipe & sessions" };
 
@@ -31,7 +33,7 @@ export default async function TeamPage() {
     direction ? listPendingRequests() : Promise.resolve([]),
   ]);
   const members = everyone.filter((m) => m.status === "actif" || m.status === "suspendu");
-  const fmt = new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+  const fmt = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
   const pendingRequests: PendingView[] = pendingRows.map((m) => ({
     id: m.id,
     name: m.name,
@@ -86,12 +88,18 @@ export default async function TeamPage() {
         </Panel>
       )}
 
+      {direction && (
+        <Panel title="Ajouter un compte">
+          <CreateMemberForm />
+        </Panel>
+      )}
+
       <Panel title="Membres">
         <ul className="divide-y divide-bone/[0.06]">
           {members.map((m) => {
             const active = activeBy.get(m.id) ?? 0;
             return (
-              <li key={m.id} className="grid grid-cols-1 items-center gap-4 px-6 py-4 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto_auto]">
+              <li key={m.id} className="grid grid-cols-1 items-center gap-4 px-6 py-4 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto_auto_auto]">
                 <div className="flex min-w-0 items-center gap-4">
                   <span className="relative">
                     <Avatar name={m.name} className="size-10 text-sm" />
@@ -106,10 +114,24 @@ export default async function TeamPage() {
                   </div>
                 </div>
                 <p className="truncate text-sm text-bone/60">{direction || m.id === user.id ? m.email : "—"}</p>
-                <span className="label rounded-full border border-bone/15 px-3 py-1.5 text-bone/75">{ROLE_LABEL[m.role]}</span>
-                <p className="label text-right text-mute">
+                <span className="flex flex-wrap gap-2">
+                  <span className="label rounded-full border border-bone/15 px-3 py-1.5 text-bone/75">{ROLE_LABEL[m.role]}</span>
+                  {m.status === "suspendu" && <span className="label rounded-full border border-danger/40 px-3 py-1.5 text-danger">Suspendu</span>}
+                </span>
+                <p className="label text-mute md:text-right">
                   {accessBy.get(m.id) ?? 0} dossiers · {m.lastLoginAt ? relative(m.lastLoginAt) : "jamais connecté"}
                 </p>
+                {direction || m.id === user.id ? (
+                  <Link
+                    href={direction ? `/espace/equipe/${m.id}` : "/espace/compte"}
+                    className="label inline-flex items-center justify-center gap-1.5 justify-self-start rounded-full border border-bone/15 px-3 py-2 text-bone/80 transition-colors hover:border-brass hover:text-brass md:justify-self-end"
+                  >
+                    <Icon name={direction ? "settings" : "key"} className="size-3.5" />
+                    {direction ? "Gérer" : "Mon compte"}
+                  </Link>
+                ) : (
+                  <span aria-hidden />
+                )}
               </li>
             );
           })}

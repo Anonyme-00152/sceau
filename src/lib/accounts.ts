@@ -72,7 +72,7 @@ export async function requestAccount(input: { name: string; email: string; title
   await audit({ userId: id, actor: input.name, action: "compte.demande", targetType: "user", targetId: id, label: input.email, ip: input.ip });
 
   const link = `${APP_URL}/approbation/${token}`;
-  const when = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeStyle: "short" }).format(now);
+  const when = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", dateStyle: "long", timeStyle: "short" }).format(now);
   const lines = [
     ["Nom", input.name],
     ["E-mail", input.email],

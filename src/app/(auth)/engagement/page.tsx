@@ -20,7 +20,7 @@ export default async function EngagementPage() {
   if (current.session.ndaAt) redirect("/espace");
 
   const { ip } = await requestInfo();
-  const date = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeStyle: "short" }).format(new Date());
+  const date = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", dateStyle: "long", timeStyle: "short" }).format(new Date());
 
   return (
     <AuthFrame
