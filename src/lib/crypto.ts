@@ -3,6 +3,7 @@ import {
   createCipheriv,
   createDecipheriv,
   createHash,
+  createHmac,
   randomBytes,
   scrypt as scryptCb,
   timingSafeEqual,
@@ -89,6 +90,12 @@ export function randomToken(bytes = 32): string {
 
 export function sha256(input: string): string {
   return createHash("sha256").update(input).digest("hex");
+}
+
+/** Signature HMAC-SHA256, avec une clé dérivée de la clé maîtresse pour cet usage précis (jamais la clé elle-même). */
+export function sign(value: string, purpose: string): string {
+  const key = createHmac("sha256", masterKey()).update(`sceau:${purpose}`).digest();
+  return createHmac("sha256", key).update(value).digest("base64url");
 }
 
 export function safeEqual(a: string, b: string): boolean {

@@ -100,7 +100,8 @@ function Card({ step }: { step: (typeof STEPS)[number] }) {
       </div>
       <div>
         <h3 className="text-4xl tracking-[-0.04em] md:text-5xl">{step.title}</h3>
-        <p className="mt-4 max-w-sm leading-relaxed text-ink/70">{step.body}</p>
+        {/* Trois lignes réservées : les titres des quatre cartes restent alignés. */}
+        <p className="mt-4 min-h-[4.9rem] max-w-sm leading-relaxed text-ink/70">{step.body}</p>
       </div>
     </article>
   );

@@ -39,10 +39,10 @@ export function DemoAuthenticator({ email, onUse }: { email: string; onUse: (cod
 
   return (
     <div className="rounded-2xl border border-dashed border-bone/20 bg-ink-2/60 p-4">
-      <div className="flex items-center justify-between gap-4">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <div className="min-w-0">
           <p className="label text-steel">Authentificateur de démonstration</p>
-          <p className="mt-2 font-mono text-3xl tracking-[0.2em] text-bone" aria-live="polite">
+          <p className="mt-2 whitespace-nowrap font-mono text-3xl tracking-[0.2em] text-bone" aria-live="polite">
             {data ? `${data.code.slice(0, 3)} ${data.code.slice(3)}` : "··· ···"}
           </p>
         </div>
@@ -54,7 +54,7 @@ export function DemoAuthenticator({ email, onUse }: { email: string; onUse: (cod
               cy="18"
               r="15"
               fill="none"
-              stroke={remaining < 6 ? "var(--color-danger)" : "var(--color-bone)"}
+              stroke={remaining < 6 ? "var(--color-brass)" : "var(--color-bone)"}
               strokeWidth="3"
               strokeLinecap="round"
               strokeDasharray={C}

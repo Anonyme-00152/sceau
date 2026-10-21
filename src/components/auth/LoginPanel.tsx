@@ -114,8 +114,14 @@ export function LoginPanel({
           Saisissez le code à six chiffres affiché par votre application d&apos;authentification. Il change toutes les
           30&nbsp;secondes.
         </p>
+        {currentEmail && (
+          <p className="mt-6 flex min-w-0 items-center gap-3 rounded-xl border border-bone/10 bg-ink-2/60 px-4 py-3 text-sm">
+            <span className="label shrink-0 text-mute">Compte</span>
+            <span className="truncate text-bone">{currentEmail}</span>
+          </p>
+        )}
 
-        <form ref={codeForm} action={verify} className="mt-10 space-y-6">
+        <form ref={codeForm} action={verify} className="mt-8 space-y-6">
           <OtpInput
             value={code}
             onChange={setCode}
@@ -191,6 +197,9 @@ export function LoginPanel({
           Continuer →
         </SubmitButton>
       </form>
+      <p className="mt-5 text-center text-sm leading-relaxed text-bone/50">
+        Mot de passe oublié ? La direction peut vous attribuer un mot de passe provisoire.
+      </p>
 
       {signupsOpen && (
         <p className="mt-6 text-center text-sm text-bone/60">

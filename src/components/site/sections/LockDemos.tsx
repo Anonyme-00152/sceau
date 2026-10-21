@@ -134,11 +134,16 @@ export function AccessDemo() {
 
 /* ───────────── 03 · Double clé : un code qui change toutes les 30 s ───────────── */
 
+// Hachage entier 32 bits (Math.imul) : les multiplications en flottant perdraient les bits de poids faible.
+function mix(seed: number) {
+  let h = Math.imul(seed + 0x9e3779b9, 0x85ebca6b);
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+  return (h ^ (h >>> 16)) >>> 0;
+}
+
 function fakeCode(step: number) {
   // Purement décoratif : une suite pseudo-aléatoire déterministe.
-  let x = (step * 2654435761) % 4294967296;
-  x = (x ^ (x >>> 13)) * 1274126177;
-  return String(Math.abs(x) % 1_000_000).padStart(6, "0");
+  return String(mix(step) % 1_000_000).padStart(6, "0");
 }
 
 export function TotpDemo() {
@@ -172,7 +177,7 @@ export function TotpDemo() {
           cy="22"
           r="18"
           fill="none"
-          stroke={remaining < 6 ? "var(--color-danger)" : "var(--color-bone)"}
+          stroke={remaining < 6 ? "var(--color-brass)" : "var(--color-bone)"}
           strokeWidth="3"
           strokeLinecap="round"
           strokeDasharray={C}
@@ -188,13 +193,7 @@ export function TotpDemo() {
 const ACTIONS = ["Connexion", "Dossier consulté", "Donnée révélée", "Accès accordé", "Dossier modifié", "Déconnexion"];
 
 function shortHash(seed: number) {
-  let h = seed * 2246822519;
-  let out = "";
-  for (let i = 0; i < 8; i++) {
-    h = (h * 1103515245 + 12345) % 2147483648;
-    out += "0123456789abcdef"[h % 16];
-  }
-  return out;
+  return mix(seed * 7919 + 1280).toString(16).padStart(8, "0");
 }
 
 export function ChainDemo() {

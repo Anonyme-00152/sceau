@@ -76,7 +76,7 @@ export default async function ClientsPage(props: PageProps<"/espace/clients">) {
         <table className="w-full text-left text-sm">
           <thead className="bg-ink-2">
             <tr className="label text-mute">
-              <th scope="col" className="px-6 py-4 font-normal">Dossier</th>
+              <th scope="col" className="px-4 py-4 font-normal sm:px-6">Dossier</th>
               <th scope="col" className="hidden px-4 py-4 font-normal md:table-cell">Secteur · ville</th>
               <th scope="col" className="hidden px-4 py-4 font-normal lg:table-cell">Titulaire</th>
               <th scope="col" className="hidden px-4 py-4 font-normal sm:table-cell">Statut</th>
@@ -87,39 +87,57 @@ export default async function ClientsPage(props: PageProps<"/espace/clients">) {
           <tbody className="divide-y divide-bone/[0.06]">
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-16 text-center text-mute">
-                  Aucun dossier ne correspond.
+                <td colSpan={6} className="px-6 py-16 text-center">
+                  {q || status || sensitivity ? (
+                    <span className="text-mute">Aucun dossier ne correspond à ces critères.</span>
+                  ) : (
+                    <span className="flex flex-col items-center gap-4">
+                      <span className="flex size-12 items-center justify-center rounded-full bg-bone/[0.05] text-mute">
+                        <Icon name="folder" className="size-5" />
+                      </span>
+                      <span className="max-w-xs text-sm leading-relaxed text-mute">
+                        {canCreate(user) ? "Le registre est vide. Le premier dossier sera chiffré dès son enregistrement." : "Aucun dossier ne vous est encore attribué."}
+                      </span>
+                      {canCreate(user) && (
+                        <Link href="/espace/clients/nouveau" className={buttonClass.ghost}>
+                          <Icon name="plus" className="size-4" />
+                          Ouvrir un dossier
+                        </Link>
+                      )}
+                    </span>
+                  )}
                 </td>
               </tr>
             )}
             {rows.map((c) => (
               <tr key={c.id} className="group relative transition-colors hover:bg-bone/[0.03]">
-                <td className="px-6 py-4">
+                {/* w-full + max-w-0 : cette colonne prend la place restante et tronque, les autres gardent leur largeur. */}
+                <td className="w-full max-w-0 px-4 py-4 sm:px-6">
                   <Link href={`/espace/clients/${c.id}`} className="flex items-center gap-4 after:absolute after:inset-0">
                     <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-bone/10 text-mute">
                       <Icon name={c.access ? (c.kind === "entreprise" ? "folder" : "team") : "lock"} className="size-4" />
                     </span>
                     <span className="min-w-0">
                       <span className={`block truncate ${c.access ? "text-bone" : "text-bone/50"}`}>{c.displayName}</span>
-                      <span className="label mt-1 block text-mute">
+                      <span className="label mt-1 block truncate text-mute">
                         {c.ref} · {c.kind === "entreprise" ? "Entreprise" : "Particulier"}
                         {!c.access && <span className="text-steel"> · hors liste</span>}
                       </span>
                     </span>
                   </Link>
                 </td>
-                <td className="hidden px-4 py-4 text-bone/65 md:table-cell">{[c.sector, c.city].filter(Boolean).join(" · ")}</td>
-                <td className="hidden px-4 py-4 text-bone/65 lg:table-cell">
+                <td className="hidden min-w-[11rem] px-4 py-4 text-bone/65 md:table-cell">{[c.sector, c.city].filter(Boolean).join(" · ")}</td>
+                <td className="hidden whitespace-nowrap px-4 py-4 text-bone/65 lg:table-cell">
                   {c.ownerName}
-                  <span className="label ml-2 text-mute">+{Math.max(0, c.members - 1)}</span>
+                  {c.members > 1 && <span className="label ml-2 text-mute">+{c.members - 1}</span>}
                 </td>
-                <td className="hidden px-4 py-4 sm:table-cell">
+                <td className="hidden whitespace-nowrap px-4 py-4 sm:table-cell">
                   <StatusBadge status={c.status} />
                 </td>
-                <td className="px-4 py-4">
+                <td className="whitespace-nowrap py-4 pl-2 pr-4 sm:px-4">
                   <SensitivityBadge level={c.sensitivity} />
                 </td>
-                <td className="label hidden px-6 py-4 text-right text-mute xl:table-cell">{relative(c.updatedAt)}</td>
+                <td className="label hidden whitespace-nowrap px-6 py-4 text-right text-mute xl:table-cell">{relative(c.updatedAt)}</td>
               </tr>
             ))}
           </tbody>

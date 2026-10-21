@@ -43,12 +43,9 @@ export function Hero() {
 
   return (
     <section id="top" className="grain relative h-[100svh] min-h-[640px] overflow-hidden bg-ink" aria-label="Introduction">
-      {/* Fond : halo + mot-marque géant, derrière le cachet. */}
+      {/* Fond : un halo chaud derrière le cachet. Le mot-marque géant vit dans le pied de page, pas ici. */}
       <div aria-hidden className="absolute inset-0">
         <div className="absolute left-1/2 top-[44%] size-[120vmin] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(203,163,92,0.16),transparent_62%)] md:left-[70%]" />
-        <p className="display absolute inset-x-0 bottom-[-0.06em] select-none whitespace-nowrap text-center text-[32vw] text-bone/[0.07] md:text-[30vw]">
-          Sceau
-        </p>
       </div>
 
       {/* Affiche statique : visible immédiatement, puis relayée par la 3D. */}

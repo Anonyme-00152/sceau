@@ -12,6 +12,7 @@ import { clearSessionCookie, createSession, getCurrent, requireAccess } from "./
 import { ELEVATION_TTL, IP_WINDOW, LOCKOUT_DURATION, MAX_FAILED_ATTEMPTS, MAX_FAILURES_PER_IP } from "./constants";
 import { failuresFromIp } from "./activity";
 import { enrollmentData } from "./accounts";
+import { rememberEngagement, rememberedEngagement } from "./engagement";
 import type { User } from "./db/schema";
 
 export type EnrollData = { qr: string; secret: string; issuer: string };
@@ -87,7 +88,10 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
     return {
       step: "password",
       email,
-      error: locked ? lockedMessage(Date.now() + LOCKOUT_DURATION) : "Identifiants incorrects.",
+      // Même message que l'adresse existe ou non : rien ne trahit les comptes enregistrés.
+      error: locked
+        ? lockedMessage(Date.now() + LOCKOUT_DURATION)
+        : "Identifiants incorrects. Vérifiez l'adresse et le mot de passe : après 5 essais, le compte se bloque 5 minutes.",
     };
   }
 
@@ -121,9 +125,15 @@ export async function verifyCodeAction(_prev: AuthState, formData: FormData): Pr
       return { step: "password", email: user.email, error: lockedMessage(Date.now() + LOCKOUT_DURATION) };
     }
     if (!user.totpEnrolledAt) {
-      return { step: "enroll", email: user.email, enroll: await enrollmentData(user), error: "Code incorrect. Vérifiez l'heure du téléphone." };
+      const enroll = await enrollmentData(user);
+      return {
+        step: "enroll",
+        email: user.email,
+        enroll,
+        error: `Code refusé. Lisez bien l'entrée « ${enroll.issuer} » et vérifiez que l'heure du téléphone est réglée automatiquement.`,
+      };
     }
-    return { step: "code", email: user.email, error: "Code incorrect ou expiré." };
+    return { step: "code", email: user.email, error: "Code refusé. Saisissez celui affiché maintenant : il change toutes les 30 secondes." };
   }
 
   const now = Date.now();
@@ -134,6 +144,22 @@ export async function verifyCodeAction(_prev: AuthState, formData: FormData): Pr
     .where(eq(schema.users.id, user.id));
   if (!user.totpEnrolledAt) await audit({ userId: user.id, actor: user.name, action: "code.enrole", targetType: "user", targetId: user.id, ip });
   await audit({ userId: user.id, actor: user.name, action: "connexion.reussie", targetType: "session", ip });
+
+  // Engagement déjà signé sur cet appareil depuis moins de 30 jours : il vaut pour cette session, et c'est journalisé.
+  const signedUntil = await rememberedEngagement(user.id);
+  if (signedUntil) {
+    await db.update(schema.sessions).set({ ndaAt: Date.now() }).where(eq(schema.sessions.id, session.id));
+    const until = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", day: "numeric", month: "long" }).format(signedUntil);
+    await audit({
+      userId: user.id,
+      actor: user.name,
+      action: "confidentialite.acceptee",
+      targetType: "session",
+      label: `appareil reconnu · valable jusqu'au ${until}`,
+      ip,
+    });
+    redirect("/espace");
+  }
   redirect("/engagement");
 }
 
@@ -152,7 +178,15 @@ export async function acceptNdaAction() {
   if (!current.session.ndaAt) {
     const { ip } = await requestInfo();
     await db.update(schema.sessions).set({ ndaAt: Date.now() }).where(eq(schema.sessions.id, current.session.id));
-    await audit({ userId: current.user.id, actor: current.user.name, action: "confidentialite.acceptee", targetType: "session", ip });
+    await audit({
+      userId: current.user.id,
+      actor: current.user.name,
+      action: "confidentialite.acceptee",
+      targetType: "session",
+      label: "signé · valable 30 jours sur cet appareil",
+      ip,
+    });
+    await rememberEngagement(current.user.id);
   }
   redirect("/espace");
 }
@@ -213,7 +247,7 @@ export async function elevateAction(code: string): Promise<{ ok: boolean; error?
   const secret = unseal(user.totpSecret, `totp:${user.id}`);
   if (!verifyTotp(secret, code)) {
     await audit({ userId: user.id, actor: user.name, action: "code.echec", targetType: "session", ip });
-    return { ok: false, error: "Code incorrect ou expiré." };
+    return { ok: false, error: "Code refusé. Saisissez celui affiché maintenant : il change toutes les 30 secondes." };
   }
   const until = Date.now() + ELEVATION_TTL;
   await db.update(schema.sessions).set({ elevatedUntil: until }).where(eq(schema.sessions.id, session.id));

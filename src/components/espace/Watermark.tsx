@@ -18,14 +18,14 @@ export function Watermark({ name, sessionTag }: { name: string; sessionTag: stri
 
   const tile = useMemo(() => {
     const text = `${name} · ${stamp} · ${sessionTag}`.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='420' height='220'><text x='10' y='120' fill='%23edebe4' font-family='ui-monospace,monospace' font-size='12' letter-spacing='1' transform='rotate(-16 210 110)'>${encodeURIComponent(text)}</text></svg>`;
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='560' height='300'><text x='20' y='160' fill='%23edebe4' font-family='ui-monospace,monospace' font-size='12' letter-spacing='1' transform='rotate(-16 280 150)'>${encodeURIComponent(text)}</text></svg>`;
     return `url("data:image/svg+xml;utf8,${svg}")`;
   }, [name, stamp, sessionTag]);
 
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-[70] opacity-[0.045] print:opacity-30"
+      className="pointer-events-none fixed inset-0 z-[70] opacity-[0.035] print:opacity-30"
       style={{ backgroundImage: tile }}
     />
   );

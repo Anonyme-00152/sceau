@@ -101,7 +101,7 @@ export default async function ParametresPage() {
           )}
         </Panel>
 
-        <Panel title="Sauvegarde">
+        <Panel title="Sauvegarde" id="sauvegarde">
           <div className="space-y-4 px-6 py-5 text-sm leading-relaxed">
             <p className="text-bone/80">
               Un fichier contenant tous les dossiers, l&apos;équipe et le journal. Les données sensibles y restent chiffrées : sans la clé

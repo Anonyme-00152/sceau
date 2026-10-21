@@ -66,6 +66,11 @@ export default async function EngagementPage() {
         </dl>
       </div>
 
+      <p className="mt-4 text-sm leading-relaxed text-bone/55">
+        Valable 30 jours sur cet appareil : vous ne le resignerez pas à chaque connexion. Le mot de passe et le code restent
+        demandés à chaque fois.
+      </p>
+
       <div className="mt-8">
         <NdaForm />
       </div>

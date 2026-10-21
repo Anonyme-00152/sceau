@@ -7,7 +7,9 @@ import { verifyChain } from "@/lib/audit";
 import { canCreate } from "@/lib/access";
 import { describeAgent } from "@/lib/request";
 import { relative, timeOnly } from "@/lib/format";
+import { onboardingSteps } from "@/lib/onboarding";
 import { ActivityList } from "@/components/espace/ActivityList";
+import { Onboarding } from "@/components/espace/Onboarding";
 import { PageHeader, Panel, buttonClass } from "@/components/espace/PageHeader";
 import { SensitivityBadge, StatusBadge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
@@ -15,19 +17,22 @@ import { Icon } from "@/components/ui/Icon";
 export const metadata: Metadata = { title: "Tableau de bord" };
 
 function greeting() {
-  const h = new Date().getHours();
+  // Heure de Paris : le serveur, lui, tourne en temps universel.
+  const parts = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", hour: "numeric", hourCycle: "h23" }).formatToParts(new Date());
+  const h = Number(parts.find((p) => p.type === "hour")?.value ?? 12);
   return h < 6 ? "Bonne nuit" : h < 18 ? "Bonjour" : "Bonsoir";
 }
 
 export default async function DashboardPage() {
   const { user, session } = await requireAccess();
-  const [clients, activity, reveals, chain, alerts, lastLogin] = await Promise.all([
+  const [clients, activity, reveals, chain, alerts, lastLogin, firstSteps] = await Promise.all([
     listClients(user),
     recentActivity(user, 8),
     revealsToday(user.id),
     verifyChain(),
     user.role === "direction" ? failedLoginsLastDays(7) : Promise.resolve(0),
     previousLogin(user.id),
+    onboardingSteps(user),
   ]);
   const mine = clients.filter((c) => c.access);
   const secret = mine.filter((c) => c.sensitivity === "secret").length;
@@ -36,7 +41,7 @@ export default async function DashboardPage() {
 
   const stats = [
     { label: "Dossiers accessibles", value: mine.length, hint: user.role === "direction" ? `sur ${clients.length} au registre` : "sur votre liste d'accès" },
-    { label: "Dossiers secrets", value: secret, hint: "accès renforcé requis", tone: "text-danger" },
+    { label: "Dossiers secrets", value: secret, hint: "accès renforcé requis", tone: secret ? "text-danger" : undefined },
     { label: "Révélations aujourd'hui", value: reveals, hint: "par vous, toutes journalisées" },
     user.role === "direction"
       ? { label: "Échecs de connexion", value: alerts, hint: "sur les 7 derniers jours", tone: alerts ? "text-danger" : undefined }
@@ -63,6 +68,8 @@ export default async function DashboardPage() {
         }
       />
 
+      {firstSteps && <Onboarding steps={firstSteps} />}
+
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-bone/10 bg-bone/10 xl:grid-cols-4">
         {stats.map((s) => (
           <div key={s.label} className="bg-ink-2 p-6">
@@ -83,7 +90,20 @@ export default async function DashboardPage() {
           }
         >
           {mine.length === 0 ? (
-            <p className="px-6 py-10 text-center text-sm text-mute">Aucun dossier ne vous est encore attribué.</p>
+            <div className="flex flex-col items-center gap-4 px-6 py-12 text-center">
+              <span className="flex size-12 items-center justify-center rounded-full bg-bone/[0.05] text-mute">
+                <Icon name="folder" className="size-5" />
+              </span>
+              <p className="max-w-xs text-sm leading-relaxed text-mute">
+                {canCreate(user) ? "Aucun dossier pour l’instant. Le premier sera chiffré dès son enregistrement." : "Aucun dossier ne vous est encore attribué. La direction vous ajoutera aux dossiers qui vous concernent."}
+              </p>
+              {canCreate(user) && (
+                <Link href="/espace/clients/nouveau" className={buttonClass.ghost}>
+                  <Icon name="plus" className="size-4" />
+                  Ouvrir un dossier
+                </Link>
+              )}
+            </div>
           ) : (
             <ul className="divide-y divide-bone/[0.06]">
               {mine.slice(0, 6).map((c) => (
@@ -148,7 +168,7 @@ export default async function DashboardPage() {
         title={user.role === "direction" ? "Activité de l'équipe" : "Votre activité"}
         action={
           <Link href="/espace/journal" className="label -my-2 inline-block py-2 text-mute transition-colors hover:text-bone">
-            Journal complet →
+            Journal →
           </Link>
         }
       >

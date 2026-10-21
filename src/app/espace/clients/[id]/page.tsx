@@ -48,6 +48,7 @@ export default async function ClientPage(props: PageProps<"/espace/clients/[id]"
 
   const profile = readProfile(client);
   const { sections, custom } = buildFieldViews(user, client, profile, await getModules());
+  const customIndex = String(sections.length + 1).padStart(2, "0");
   const [members, events, traces, team] = await Promise.all([
     clientMembers(id),
     clientEvents(id),
@@ -114,117 +115,149 @@ export default async function ClientPage(props: PageProps<"/espace/clients/[id]"
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <div className="space-y-6">
-          {sections.map((s) => (
-            <Panel
-              key={s.id}
-              title={
-                <span className="flex items-center gap-3">
-                  <span className="text-brass">{s.index}</span>
-                  {s.label}
-                </span>
-              }
-            >
-              <div className="grid grid-cols-1 gap-x-10 gap-y-7 px-6 py-6 md:grid-cols-2">
-                {s.fields.map((f) => (
-                  <FieldCell key={f.key} f={f} clientId={id} />
-                ))}
-              </div>
-            </Panel>
-          ))}
-          {custom.length > 0 && (
-            <Panel
-              title={
-                <span className="flex items-center gap-3">
-                  <span className="text-brass">06</span>
-                  Champs libres
-                </span>
-              }
-            >
-              <div className="grid grid-cols-1 gap-x-10 gap-y-7 px-6 py-6 md:grid-cols-2">
-                {custom.map((f) => (
-                  <FieldCell key={f.key} f={f} clientId={id} />
-                ))}
-              </div>
-            </Panel>
-          )}
-        </div>
-
-        <div className="space-y-6">
-          <Panel title={`Liste d'accès · ${members.length}`}>
-            <ul className="divide-y divide-bone/[0.06]">
-              {members.map((m) => (
-                <li key={m.userId} className="flex items-center gap-3 px-6 py-3.5">
-                  <Avatar name={m.name} className="size-9 text-xs" />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm text-bone">
-                      {m.name}
-                      {m.userId === user.id && <span className="text-mute"> · vous</span>}
-                    </p>
-                    <p className="label mt-1 text-mute">
-                      {ROLE_LABEL[m.role]} · {m.grantedBy === "création" ? "titulaire" : `par ${m.grantedBy}`}
-                    </p>
-                  </div>
-                  {canManageAccess(user) && m.userId !== client.ownerId && (
-                    <form action={revokeAccessAction.bind(null, id)}>
-                      <input type="hidden" name="userId" value={m.userId} />
-                      <button className="label rounded-full border border-bone/10 px-2.5 py-1.5 text-mute transition-colors hover:border-danger hover:text-danger">
-                        Retirer
-                      </button>
-                    </form>
-                  )}
-                </li>
-              ))}
-            </ul>
-            {canManageAccess(user) && candidates.length > 0 && (
-              <form action={grantAccessAction.bind(null, id)} className="flex gap-2 border-t border-bone/10 px-6 py-4">
-                <label className="sr-only" htmlFor="grant-user">
-                  Membre à ajouter
-                </label>
-                <select
-                  id="grant-user"
-                  name="userId"
-                  className="h-10 min-w-0 flex-1 rounded-full border border-bone/15 bg-ink px-4 text-sm text-bone outline-none focus:border-bone"
-                >
-                  {candidates.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} — {ROLE_LABEL[c.role]}
-                    </option>
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[180px_minmax(0,1fr)]">
+        {/* Sommaire fixe : une fiche complète compte une dizaine de rubriques. */}
+        <nav aria-label="Rubriques de la fiche" className="hidden xl:block">
+          <ul className="sticky top-28 space-y-0.5">
+            {[
+              ...sections.map((s) => ({ href: s.id, index: s.index, label: s.label })),
+              ...(custom.length > 0 ? [{ href: "libres", index: customIndex, label: "Champs libres" }] : []),
+            ].map((item) => (
+              <li key={item.href}>
+                <a href={`#${item.href}`} className="label flex gap-3 rounded-lg px-3 py-2 text-mute transition-colors hover:bg-bone/[0.03] hover:text-bone">
+                  <span className="text-brass">{item.index}</span>
+                  <span className="min-w-0">{item.label}</span>
+                </a>
+              </li>
+            ))}
+            <li className="my-2 h-px bg-bone/10" aria-hidden />
+            {[
+              { href: "acces", label: "Liste d’accès" },
+              { href: "echanges", label: "Échanges" },
+              { href: "traces", label: "Traces" },
+            ].map((item) => (
+              <li key={item.href}>
+                <a href={`#${item.href}`} className="label flex rounded-lg px-3 py-2 text-mute transition-colors hover:bg-bone/[0.03] hover:text-bone">
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div className="grid min-w-0 grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+          <div className="space-y-6">
+            {sections.map((s) => (
+              <Panel
+                key={s.id}
+                id={s.id}
+                title={
+                  <span className="flex items-center gap-3">
+                    <span className="text-brass">{s.index}</span>
+                    {s.label}
+                  </span>
+                }
+              >
+                <div className="grid grid-cols-1 gap-x-10 gap-y-7 px-6 py-6 md:grid-cols-2">
+                  {s.fields.map((f) => (
+                    <FieldCell key={f.key} f={f} clientId={id} />
                   ))}
-                </select>
-                <button className="h-10 rounded-full bg-bone px-4 text-sm font-medium text-ink">Accorder</button>
-              </form>
+                </div>
+              </Panel>
+            ))}
+            {custom.length > 0 && (
+              <Panel
+                id="libres"
+                title={
+                  <span className="flex items-center gap-3">
+                    <span className="text-brass">{customIndex}</span>
+                    Champs libres
+                  </span>
+                }
+              >
+                <div className="grid grid-cols-1 gap-x-10 gap-y-7 px-6 py-6 md:grid-cols-2">
+                  {custom.map((f) => (
+                    <FieldCell key={f.key} f={f} clientId={id} />
+                  ))}
+                </div>
+              </Panel>
             )}
-          </Panel>
+          </div>
 
-          <Panel title={`Échanges · ${events.length}`}>
-            {events.length === 0 ? (
-              <p className="px-6 py-8 text-center text-sm text-mute">Aucun échange consigné.</p>
-            ) : (
-              <ol className="relative px-6 py-5">
-                <span aria-hidden className="absolute bottom-7 left-[39px] top-7 w-px bg-bone/10" />
-                {events.map((e) => (
-                  <li key={e.id} className="relative flex gap-4 pb-5 last:pb-0">
-                    <span className="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border border-bone/10 bg-ink-2 text-bone/70">
-                      <Icon name={EVENT_ICON[e.kind] ?? "note"} className="size-4" />
-                    </span>
-                    <div className="min-w-0 pt-1">
-                      <p className="label text-mute">
-                        {EVENT_LABEL[e.kind]} · {e.author} · {relative(e.at)}
+          <div className="space-y-6">
+            <Panel id="acces" title={`Liste d'accès · ${members.length}`}>
+              <ul className="divide-y divide-bone/[0.06]">
+                {members.map((m) => (
+                  <li key={m.userId} className="flex items-center gap-3 px-6 py-3.5">
+                    <Avatar name={m.name} className="size-9 text-xs" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-bone">
+                        {m.name}
+                        {m.userId === user.id && <span className="text-mute"> · vous</span>}
                       </p>
-                      <p className="mt-1.5 text-sm leading-relaxed text-bone/85">{e.body}</p>
+                      <p className="label mt-1 text-mute">
+                        {ROLE_LABEL[m.role]} · {m.grantedBy === "création" ? "titulaire" : `par ${m.grantedBy}`}
+                      </p>
                     </div>
+                    {canManageAccess(user) && m.userId !== client.ownerId && (
+                      <form action={revokeAccessAction.bind(null, id)}>
+                        <input type="hidden" name="userId" value={m.userId} />
+                        <button className="label rounded-full border border-bone/10 px-2.5 py-1.5 text-mute transition-colors hover:border-danger hover:text-danger">
+                          Retirer
+                        </button>
+                      </form>
+                    )}
                   </li>
                 ))}
-              </ol>
-            )}
-            {canEdit(user) && <EventForm clientId={id} />}
-          </Panel>
+              </ul>
+              {canManageAccess(user) && candidates.length > 0 && (
+                <form action={grantAccessAction.bind(null, id)} className="flex gap-2 border-t border-bone/10 px-6 py-4">
+                  <label className="sr-only" htmlFor="grant-user">
+                    Membre à ajouter
+                  </label>
+                  <select
+                    id="grant-user"
+                    name="userId"
+                    className="h-10 min-w-0 flex-1 rounded-full border border-bone/15 bg-ink px-4 text-sm text-bone outline-none focus:border-bone"
+                  >
+                    {candidates.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} — {ROLE_LABEL[c.role]}
+                      </option>
+                    ))}
+                  </select>
+                  <button className="h-10 rounded-full bg-bone px-4 text-sm font-medium text-ink">Accorder</button>
+                </form>
+              )}
+            </Panel>
 
-          <Panel title={user.role === "direction" ? "Traces sur ce dossier" : "Vos traces sur ce dossier"}>
-            <ActivityList entries={traces} showActor={user.role === "direction"} />
-          </Panel>
+            <Panel id="echanges" title={`Échanges · ${events.length}`}>
+              {events.length === 0 ? (
+                <p className="px-6 py-8 text-center text-sm text-mute">Aucun échange consigné.</p>
+              ) : (
+                <ol className="relative px-6 py-5">
+                  <span aria-hidden className="absolute bottom-7 left-[39px] top-7 w-px bg-bone/10" />
+                  {events.map((e) => (
+                    <li key={e.id} className="relative flex gap-4 pb-5 last:pb-0">
+                      <span className="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border border-bone/10 bg-ink-2 text-bone/70">
+                        <Icon name={EVENT_ICON[e.kind] ?? "note"} className="size-4" />
+                      </span>
+                      <div className="min-w-0 pt-1">
+                        <p className="label text-mute">
+                          {EVENT_LABEL[e.kind]} · {e.author} · {relative(e.at)}
+                        </p>
+                        <p className="mt-1.5 text-sm leading-relaxed text-bone/85">{e.body}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
+              {canEdit(user) && <EventForm clientId={id} />}
+            </Panel>
+
+            <Panel id="traces" title={user.role === "direction" ? "Traces sur ce dossier" : "Vos traces sur ce dossier"}>
+              <ActivityList entries={traces} showActor={user.role === "direction"} />
+            </Panel>
+          </div>
         </div>
       </div>
     </div>

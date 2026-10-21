@@ -21,9 +21,21 @@ export function PageHeader({
   );
 }
 
-export function Panel({ title, action, children, className = "" }: { title?: React.ReactNode; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
+export function Panel({
+  title,
+  action,
+  children,
+  className = "",
+  id,
+}: {
+  title?: React.ReactNode;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+  id?: string;
+}) {
   return (
-    <section className={`rounded-3xl border border-bone/10 bg-ink-2/70 ${className}`}>
+    <section id={id} className={`scroll-mt-24 rounded-3xl border border-bone/10 bg-ink-2/70 ${className}`}>
       {(title || action) && (
         <div className="flex items-center justify-between gap-4 border-b border-bone/10 px-6 py-4">
           {title && <h2 className="label text-mute">{title}</h2>}

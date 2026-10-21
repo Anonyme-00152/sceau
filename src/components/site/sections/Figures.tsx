@@ -19,7 +19,8 @@ export function Figures() {
                 <Counter to={f.value} />
                 <span className="text-brass">{f.suffix}</span>
               </p>
-              <p className="mt-4 max-w-[16rem] text-sm leading-relaxed text-bone/60">{f.label}</p>
+              {/* Hauteur fixe de deux lignes : les chiffres restent alignés, quelle que soit la longueur du texte. */}
+              <p className="mt-4 min-h-[2.85rem] max-w-[16rem] text-sm leading-relaxed text-bone/60">{f.label}</p>
             </div>
           </Reveal>
         ))}

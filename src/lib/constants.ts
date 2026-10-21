@@ -1,9 +1,14 @@
 // En HTTPS, le préfixe __Host- interdit au cookie tout domaine ou chemin autre que le site lui-même.
 export const HTTPS = (process.env.APP_URL ?? "").startsWith("https://");
 export const SESSION_COOKIE = HTTPS ? "__Host-sceau_session" : "sceau_session";
+export const ENGAGEMENT_COOKIE = HTTPS ? "__Host-sceau_engagement" : "sceau_engagement";
 
 export const MINUTE = 60_000;
 export const HOUR = 60 * MINUTE;
+export const DAY = 24 * HOUR;
+
+/** L'engagement de confidentialité signé reste valable sur cet appareil pendant cette durée. */
+export const ENGAGEMENT_TTL = 30 * DAY;
 
 /** Durée de vie absolue d'une session. */
 export const SESSION_TTL = 8 * HOUR;

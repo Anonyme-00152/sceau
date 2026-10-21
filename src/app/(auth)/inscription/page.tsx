@@ -16,7 +16,7 @@ export default async function InscriptionPage() {
   return (
     <AuthFrame
       step={{ index: 0, label: "Demande" }}
-      steps={["Demande", "Validation", "Première connexion"]}
+      steps={open ? ["Demande", "Validation", "Première connexion"] : []}
       aside={{
         title: (
           <>
@@ -25,7 +25,9 @@ export default async function InscriptionPage() {
             <span className="serif-accent text-brass">sans être invité.</span>
           </>
         ),
-        body: "Votre demande part par e-mail à l'administrateur. Tant qu'il ne l'a pas validée, le compte existe mais reste fermé.",
+        body: open
+          ? "Votre demande part par e-mail à l'administrateur. Tant qu'il ne l'a pas validée, le compte existe mais reste fermé."
+          : "Ici, les comptes sont créés par la direction. Pas de formulaire ouvert au public : c'est elle qui décide qui entre.",
       }}
     >
       {open ? (
@@ -35,7 +37,8 @@ export default async function InscriptionPage() {
           <p className="label text-steel">Inscriptions fermées</p>
           <h1 className="mt-4 text-4xl tracking-[-0.045em] md:text-5xl">Cette installation est privée.</h1>
           <p className="mt-5 leading-relaxed text-bone/70">
-            Aucune nouvelle demande d&apos;accès n&apos;est acceptée ici. Si vous avez déjà un compte, connectez-vous.
+            Les comptes sont créés par la direction de votre structure : demandez-lui un accès, elle vous remettra un mot de
+            passe provisoire. Si vous avez déjà un compte, connectez-vous.
           </p>
           <Link href="/connexion" className="mt-10 inline-flex h-13 items-center rounded-full bg-bone px-6 font-medium text-ink">
             Aller à la connexion

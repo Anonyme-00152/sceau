@@ -48,25 +48,27 @@ export function AuthFrame({
             <SealMark className="size-6 text-bone [--seal-inner:#0b0b0c]" />
             <span className="text-lg font-medium tracking-[-0.03em]">Sceau</span>
           </Link>
-          <ol className="ml-auto flex items-center gap-2" aria-label="Étapes d'accès">
-            {steps.map((s, i) => (
-              <li key={s} className="flex items-center gap-2" aria-current={i === step.index ? "step" : undefined}>
-                <span
-                  className={`label flex items-center gap-2 rounded-full border px-3 py-1.5 ${
-                    i === step.index
-                      ? "border-bone text-bone"
-                      : i < step.index
-                        ? "border-moss/40 text-moss"
-                        : "border-bone/10 text-mute"
-                  }`}
-                >
-                  {i < step.index ? "✓" : String(i + 1).padStart(2, "0")}
-                  <span className="hidden sm:inline">{s}</span>
-                </span>
-                {i < steps.length - 1 && <span className="h-px w-3 bg-bone/15" aria-hidden />}
-              </li>
-            ))}
-          </ol>
+          {steps.length > 0 && (
+            <ol className="ml-auto flex items-center gap-2" aria-label="Étapes d'accès">
+              {steps.map((s, i) => (
+                <li key={s} className="flex items-center gap-2" aria-current={i === step.index ? "step" : undefined}>
+                  <span
+                    className={`label flex items-center gap-2 rounded-full border px-3 py-1.5 ${
+                      i === step.index
+                        ? "border-bone text-bone"
+                        : i < step.index
+                          ? "border-moss/40 text-moss"
+                          : "border-bone/10 text-mute"
+                    }`}
+                  >
+                    {i < step.index ? "✓" : String(i + 1).padStart(2, "0")}
+                    <span className="hidden sm:inline">{s}</span>
+                  </span>
+                  {i < steps.length - 1 && <span className="h-px w-3 bg-bone/15" aria-hidden />}
+                </li>
+              ))}
+            </ol>
+          )}
         </div>
         <div className="mx-auto flex w-full max-w-[440px] flex-1 flex-col justify-center py-12">{children}</div>
         <p className="label text-center text-mute">Connexion chiffrée · Tentatives journalisées</p>
